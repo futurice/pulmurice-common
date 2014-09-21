@@ -22,13 +22,14 @@ import Control.Applicative as A
 import Data.Aeson
 import Data.Attoparsec.ByteString
 import Data.Bits
-import Data.ByteString as B (ByteString, length)
+import Data.ByteString as B (ByteString, length, pack)
 import Data.ByteString.Base16 as Base16 (encode, decode)
 import Data.Text.Encoding (encodeUtf8, decodeUtf8)
 import Data.Word
 import System.Entropy
 import Data.Text as T
 import System.Random.TF.Gen
+import Test.QuickCheck
 import Test.QuickCheck.Random
 
 uniqLength :: Int
@@ -37,7 +38,6 @@ uniqLength = 32
 -- | Uniq is 32 bytes long ByteString
 newtype Uniq = Uniq B.ByteString
   deriving (Eq, Ord)
-
 
 instance Show Uniq where
   show (Uniq h) = T.unpack . decodeUtf8 . Base16.encode $ h
@@ -89,3 +89,7 @@ fromText text
 
 fromString :: Alternative f => String -> f Uniq
 fromString = fromText . T.pack
+
+-- We have QuickCheck as a dependency already
+instance Arbitrary Uniq where
+  arbitrary = Uniq . B.pack <$> vectorOf uniqLength arbitrary
