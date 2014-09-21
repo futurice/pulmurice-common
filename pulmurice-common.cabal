@@ -1,0 +1,34 @@
+name:                pulmurice-common
+version:             0.1.0.0
+synopsis:            Pulmurice common data
+homepage:            https;//github.com/futurice/pulmurice-common
+license:             MIT
+license-file:        LICENSE
+author:              Oleg Grenrus
+maintainer:          Oleg Grenrus <oleg.grenrus@iki.fi>
+copyright:           Copyright © 2014 Futurice OY, Oleg Grenrus
+stability:           experimental
+category:            Game
+build-type:          Simple
+extra-source-files:  README.md, .gitignore
+cabal-version:       >=1.10
+
+source-repository head
+  type: git
+  location: git://github.com/futurice/pulmurice-common
+
+library
+  exposed-modules:     Pulmurice.Common.Uniq,
+                       Pulmurice.Common.Message
+  build-depends:       base >=4.7 && <4.8,
+                       aeson >=0.8 && <0.9,
+                       text >=1.1 && <1.2,
+                       bytestring >=0.10 && <0.11,
+                       entropy >=0.3 && <0.4,
+                       base16-bytestring >=0.1 && <0.2,
+                       tf-random >=0.5 && <0.6,
+                       QuickCheck >=2.7 && <2.8,
+                       attoparsec >=0.12 && <0.13
+  hs-source-dirs:      src
+  ghc-options:         -Wall
+  default-language:    Haskell2010
