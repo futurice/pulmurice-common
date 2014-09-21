@@ -18,7 +18,8 @@ import Control.Applicative
 import Control.Monad
 import Data.Aeson
 import Data.Aeson.Types
-import Data.Text
+import Data.Text as T
+import Test.QuickCheck
 
 import Pulmurice.Common.Uniq
 
@@ -31,7 +32,7 @@ data ReqMsg = EchoReqMsg Text
             | ShowReqMsg Uniq Uniq         -- ^ team-Uniq, puzzle-Uniq
             | SolveReqMsg Uniq Uniq String -- ^ team-Uniq, puzzle-Uniq, solution
             | ErrorReqMsg String           -- ^ message
- deriving (Show)
+ deriving (Show, Eq)
 
 encodeMessage :: Text -> Text -> [Pair] -> Value
 encodeMessage r t pairs = object $ "r" .= r : "type" .= t : pairs
@@ -66,6 +67,22 @@ instance FromJSON ReqMsg where
           parseJSON' _         = mzero
   parseJSON _ = mzero
 
+-- No orphan instances
+arbitraryText :: Gen Text
+arbitraryText = T.pack <$> arbitrary
+
+instance Arbitrary ReqMsg where
+  arbitrary = oneof
+    [ EchoReqMsg <$> arbitraryText
+    , pure PuzzlesReqMsg
+    , SignupReqMsg <$> arbitraryText <*> arbitraryText
+    , NewReqMsg <$> arbitrary <*> arbitrary <*> arbitrary
+    , ListReqMsg <$> arbitrary
+    , ShowReqMsg <$> arbitrary <*> arbitrary
+    , SolveReqMsg <$> arbitrary <*> arbitrary <*> arbitrary
+    , ErrorReqMsg <$> arbitrary
+    ]
+
 -- | Response messages.
 data ResMsg = EchoResMsg Text
             | PuzzlesResMsg [(String, Text)]     -- ^ puzzle-name, puzzle-short-description
@@ -75,7 +92,7 @@ data ResMsg = EchoResMsg Text
             | ShowResMsg Uniq String Text String -- ^ puzzle-Uniq, puzzle-name, description, input
             | SolveResMsg
             | ErrorResMsg String
-  deriving (Show)
+  deriving (Show, Eq)
 
 encodeResMsg :: Text -> [Pair] -> Value
 encodeResMsg = encodeMessage "response"
@@ -106,3 +123,15 @@ instance FromJSON ResMsg where
           parseJSON' "error"   = ErrorResMsg <$> v .: "message"
           parseJSON' _         = mzero
   parseJSON _ = mzero
+
+instance Arbitrary ResMsg where
+  arbitrary = oneof
+    [ EchoResMsg <$> arbitraryText
+    , PuzzlesResMsg <$> listOf ((,) <$> arbitrary <*> arbitraryText)
+    , pure SignupResMsg
+    , NewResMsg <$> arbitrary <*> arbitraryText <*> arbitrary
+    , ListResMsg <$> arbitrary
+    , ShowResMsg <$> arbitrary <*> arbitrary <*> arbitraryText <*> arbitrary
+    , pure SolveResMsg
+    , ErrorResMsg <$> arbitrary
+    ]
