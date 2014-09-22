@@ -19,6 +19,7 @@ import Control.Monad
 import Data.Aeson
 import Data.Aeson.Types
 import Data.Text as T
+import Data.Word
 import Test.QuickCheck
 
 import Pulmurice.Common.Uniq
@@ -27,7 +28,7 @@ import Pulmurice.Common.Uniq
 data ReqMsg = EchoReqMsg Text
             | PuzzlesReqMsg
             | SignupReqMsg Text Text       -- ^ name, email
-            | NewReqMsg Uniq String Int    -- ^ team-Uniq, puzzle-name, difficulty
+            | NewReqMsg Uniq String Word16 -- ^ team-Uniq, puzzle-name, difficulty
             | ListReqMsg Uniq              -- ^ team-Uniq
             | ShowReqMsg Uniq Uniq         -- ^ team-Uniq, puzzle-Uniq
             | SolveReqMsg Uniq Uniq String -- ^ team-Uniq, puzzle-Uniq, solution
@@ -85,11 +86,11 @@ instance Arbitrary ReqMsg where
 
 -- | Response messages.
 data ResMsg = EchoResMsg Text
-            | PuzzlesResMsg [(String, Text)]     -- ^ puzzle-name, puzzle-short-description
+            | PuzzlesResMsg [(String, Text)]      -- ^ puzzle-name, puzzle-short-description
             | SignupResMsg
-            | NewResMsg Uniq Text String         -- ^ puzzle-Uniq description input
-            | ListResMsg [(Uniq, String, Int)]   -- ^ puzzle-Uniq, puzzle-name, difficulty
-            | ShowResMsg Uniq String Text String -- ^ puzzle-Uniq, puzzle-name, description, input
+            | NewResMsg Uniq Text String          -- ^ puzzle-Uniq description input
+            | ListResMsg [(Uniq, String, Word16)] -- ^ puzzle-Uniq, puzzle-name, difficulty
+            | ShowResMsg Uniq String Text String  -- ^ puzzle-Uniq, puzzle-name, description, input
             | SolveResMsg
             | ErrorResMsg String
   deriving (Show, Eq)
